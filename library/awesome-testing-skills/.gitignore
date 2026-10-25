@@ -1,0 +1,13 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.playwright-cli/
+exploration/
+evals/runs/
+node_modules/
+*.tgz
+.exploratory-skills-backups/
+.exploratory-skills-stage-*/

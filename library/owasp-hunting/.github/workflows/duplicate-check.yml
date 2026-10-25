@@ -1,0 +1,37 @@
+name: Duplicate Payload Check
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: duplicate-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  duplicate-check:
+    name: Duplicate Payload Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check for duplicate payload/content entries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python "${{ github.workspace }}/scripts/check_duplicates.py"

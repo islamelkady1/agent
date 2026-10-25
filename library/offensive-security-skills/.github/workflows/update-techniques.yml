@@ -1,0 +1,70 @@
+name: Update Bug Bounty Techniques
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # Every Monday 06:00 UTC
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install anthropic feedparser requests
+
+      - name: Fetch new techniques
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 scripts/fetch-new-techniques.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --exit-code TECHNIQUES-MASTER.md && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Count new techniques
+        if: steps.changes.outputs.changed == 'true'
+        id: count
+        run: |
+          ADDED=$(git diff TECHNIQUES-MASTER.md | grep '^+### ' | wc -l | tr -d ' ')
+          echo "added=$ADDED" >> $GITHUB_OUTPUT
+          echo "New techniques added: $ADDED"
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "techniques: add ${{ steps.count.outputs.added }} new techniques from weekly fetch"
+          branch: "auto/techniques-update-${{ github.run_number }}"
+          title: "Weekly techniques update — ${{ steps.count.outputs.added }} new techniques"
+          body: |
+            ## Automated Weekly Update
+
+            This PR was created automatically by the `fetch-new-techniques.py` script.
+
+            **Sources checked:**
+            - KingOfBugBountyTips (GitHub)
+            - shahjerry33 Medium
+            - lostsec Medium
+            - InfoSec Writeups Medium
+            - Pentester.land
+            - HackerOne Hacktivity
+
+            **New techniques added:** ${{ steps.count.outputs.added }}
+
+            Review the diff before merging — remove anything that isn't genuinely new or useful.
+          labels: "automated,techniques"
+          draft: false

